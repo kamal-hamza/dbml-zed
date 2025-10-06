@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add wasm32-wasip1 target
+        run: rustup target add wasm32-wasip1
+
+      - name: Build extension
+        run: cargo build --release --target wasm32-wasip1
+
+      - name: Create extension directory
+        run: |
+          mkdir -p extension/languages/dbml
+          cp target/wasm32-wasip1/release/zed_dbml.wasm extension/extension.wasm
+          cp extension.toml extension/
+          cp -r languages/dbml/* extension/languages/dbml/
+          cp README.md extension/
+          cp LICENSE extension/
+
+      - name: Create package
+        run: |
+          cd extension
+          zip -r ../zed-dbml-extension.zip .
+          cd ..
+
+      - name: Extract release notes
+        id: extract_notes
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          # Extract notes for this version from CHANGELOG.md
+          sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release_notes.md
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: zed-dbml-extension.zip
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

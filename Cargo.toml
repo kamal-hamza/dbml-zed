@@ -1,0 +1,18 @@
+[package]
+name = "zed-dbml"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+zed_extension_api = "0.7"
+
+[package.metadata.zed]
+id = "dbml"
+name = "DBML"
+version = "0.1.0"
+authors = ["Your Name <your.email@example.com>"]
+description = "DBML language support for Zed"
+repository = "https://github.com/yourusername/zed-dbml"
