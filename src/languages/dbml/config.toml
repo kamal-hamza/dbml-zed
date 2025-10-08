@@ -1,0 +1,19 @@
+name = "DBML"
+grammar = "dbml"
+path_suffixes = ["dbml"]
+line_comments = ["//"]
+block_comment = ["/*", "*/"]
+tab_size = 2
+hard_tabs = false
+
+# Brackets configuration
+brackets = [
+  { start = "(", end = ")", close = true, newline = false },
+  { start = "[", end = "]", close = true, newline = false },
+  { start = "{", end = "}", close = true, newline = true },
+  { start = "'", end = "'", close = true, newline = false },
+  { start = "\"", end = "\"", close = true, newline = false },
+  { start = "`", end = "`", close = true, newline = false },
+]
+
+autoclose_before = ";,.|=}])>'\"`"

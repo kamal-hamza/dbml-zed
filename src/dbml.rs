@@ -1,4 +1,3 @@
-use std::env;
 use std::fs;
 use zed_extension_api::{self as zed, LanguageServerId, Result, Worktree};
 
@@ -7,17 +6,25 @@ struct DbmlExtension {
 }
 
 impl DbmlExtension {
+    fn new() -> Self {
+        Self {
+            cached_binary_path: None,
+        }
+    }
+
     /// Checks if Node.js and npm are available in the system PATH
     fn check_for_node(&self) -> Result<bool> {
-        // Check if node is available
-        let node_result = zed::Command::new("node").arg("--version").output();
+        let node_result = zed::Command::new("node")
+            .args(vec!["--version".to_string()])
+            .output();
 
         if node_result.is_err() {
             return Ok(false);
         }
 
-        // Check if npm is available
-        let npm_result = zed::Command::new("npm").arg("--version").output();
+        let npm_result = zed::Command::new("npm")
+            .args(vec!["--version".to_string()])
+            .output();
 
         Ok(npm_result.is_ok())
     }
@@ -27,7 +34,7 @@ impl DbmlExtension {
         zed::set_language_server_installation_status(
             language_server_id,
             &zed::LanguageServerInstallationStatus::Failed(
-                "Node.js is required but not found. Please install Node.js from https://nodejs.org to enable DBML language server features. The extension will continue to provide syntax highlighting only.".to_string()
+                "Node.js is required but not found. Please install Node.js from https://nodejs.org to enable DBML language server features.".to_string()
             ),
         );
     }
@@ -35,10 +42,15 @@ impl DbmlExtension {
     /// Checks if @dbml/cli is installed globally
     fn is_dbml_cli_installed(&self) -> Result<bool> {
         let check_result = zed::Command::new("npm")
-            .args(&["list", "-g", "@dbml/cli", "--depth=0"])
+            .args(vec![
+                "list".to_string(),
+                "-g".to_string(),
+                "@dbml/cli".to_string(),
+                "--depth=0".to_string(),
+            ])
             .output()?;
 
-        Ok(check_result.status.success())
+        Ok(check_result.status == Some(0))
     }
 
     /// Installs @dbml/cli globally using npm
@@ -49,10 +61,14 @@ impl DbmlExtension {
         );
 
         let install_result = zed::Command::new("npm")
-            .args(&["install", "-g", "@dbml/cli"])
+            .args(vec![
+                "install".to_string(),
+                "-g".to_string(),
+                "@dbml/cli".to_string(),
+            ])
             .output()?;
 
-        if !install_result.status.success() {
+        if install_result.status != Some(0) {
             let stderr = String::from_utf8_lossy(&install_result.stderr);
             let error_msg = format!(
                 "Failed to install @dbml/cli: {}. Common solutions:\n\
@@ -71,19 +87,16 @@ impl DbmlExtension {
             return Err(error_msg.into());
         }
 
-        zed::set_language_server_installation_status(
-            language_server_id,
-            &zed::LanguageServerInstallationStatus::Downloaded,
-        );
-
         Ok(())
     }
 
     /// Gets the path to the npm global installation directory
     fn get_npm_global_root(&self) -> Result<String> {
-        let npm_root_result = zed::Command::new("npm").args(&["root", "-g"]).output()?;
+        let npm_root_result = zed::Command::new("npm")
+            .args(vec!["root".to_string(), "-g".to_string()])
+            .output()?;
 
-        if !npm_root_result.status.success() {
+        if npm_root_result.status != Some(0) {
             return Err("Failed to locate npm global root directory".into());
         }
 
@@ -114,10 +127,12 @@ impl DbmlExtension {
         #[cfg(not(target_os = "windows"))]
         let which_cmd = "which";
 
-        let which_result = zed::Command::new(which_cmd).arg("dbml").output();
+        let which_result = zed::Command::new(which_cmd)
+            .args(vec!["dbml".to_string()])
+            .output();
 
         if let Ok(output) = which_result {
-            if output.status.success() {
+            if output.status == Some(0) {
                 let path = String::from_utf8_lossy(&output.stdout)
                     .trim()
                     .lines()
@@ -138,7 +153,7 @@ impl DbmlExtension {
     fn language_server_binary_path(
         &mut self,
         language_server_id: &LanguageServerId,
-        worktree: &Worktree,
+        _worktree: &Worktree,
     ) -> Result<String> {
         // Check cache first
         if let Some(path) = &self.cached_binary_path {
@@ -166,7 +181,7 @@ impl DbmlExtension {
 
         // Check if @dbml/cli is installed
         if !self.is_dbml_cli_installed()? {
-            // Install it
+            // Install it automatically
             self.install_dbml_cli(language_server_id)?;
         }
 
@@ -190,9 +205,7 @@ impl DbmlExtension {
 
 impl zed::Extension for DbmlExtension {
     fn new() -> Self {
-        Self {
-            cached_binary_path: None,
-        }
+        Self::new()
     }
 
     fn language_server_command(

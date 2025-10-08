@@ -1,0 +1,30 @@
+// Test DBML file
+
+Table users {
+  id int [pk, increment]
+  username varchar(50) [unique, not null]
+  email varchar(100) [not null]
+  created_at timestamp [default: `now()`]
+}
+
+Table posts {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  title varchar(200) [not null]
+  content text
+  published boolean [default: false]
+  created_at timestamp [default: `now()`]
+}
+
+Table comments {
+  id int [pk, increment]
+  post_id int [ref: > posts.id]
+  user_id int [ref: > users.id]
+  comment_text text [not null]
+  created_at timestamp [default: `now()`]
+}
+
+// Relationships
+Ref: posts.user_id > users.id
+Ref: comments.post_id > posts.id
+Ref: comments.user_id > users.id
