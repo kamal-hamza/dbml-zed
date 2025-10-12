@@ -19,6 +19,12 @@ if ! rustup target list --installed | grep -q "wasm32-wasip1"; then
     rustup target add wasm32-wasip1
 fi
 
+# Check if wasm-tools is installed
+if ! command -v wasm-tools &> /dev/null; then
+    echo "📦 Installing wasm-tools..."
+    cargo install wasm-tools
+fi
+
 # Clean previous builds
 echo "🧹 Cleaning previous builds..."
 cargo clean
@@ -33,6 +39,17 @@ if [ ! -f "target/wasm32-wasip1/release/zed_dbml.wasm" ]; then
     exit 1
 fi
 
+# Convert WASM module to component
+echo "🔄 Converting WASM module to component..."
+wasm-tools component new target/wasm32-wasip1/release/zed_dbml.wasm \
+    --adapt wasi_snapshot_preview1.reactor.wasm \
+    -o target/wasm32-wasip1/release/zed_dbml_component.wasm
+
+if [ ! -f "target/wasm32-wasip1/release/zed_dbml_component.wasm" ]; then
+    echo "❌ Component conversion failed"
+    exit 1
+fi
+
 # Create extension directory structure
 echo "📁 Creating extension directory structure..."
 mkdir -p extension
@@ -40,7 +57,7 @@ mkdir -p extension/languages/dbml
 
 # Copy files to extension directory
 echo "📋 Copying extension files..."
-cp target/wasm32-wasip1/release/zed_dbml.wasm extension/extension.wasm
+cp target/wasm32-wasip1/release/zed_dbml_component.wasm extension/extension.wasm
 cp extension.toml extension/
 cp -r languages/dbml/* extension/languages/dbml/
 

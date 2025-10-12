@@ -26,3 +26,6 @@ Thumbs.db
 # Node (for testing with language server)
 node_modules/
 package-lock.json
+
+
+!wasi_snapshot_preview1.command.wasm

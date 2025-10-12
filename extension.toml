@@ -13,7 +13,48 @@ language = "DBML"
 
 [grammars.dbml]
 repository = "https://github.com/dynamotn/tree-sitter-dbml"
-rev = "2e2fa5640268c33c3d3f27f7e676f631a9c68fd9"
+commit = "2e2fa5640268c33c3d3f27f7e676f631a9c68fd9"
 
 [wasm]
 path = "extension.wasm"
+
+# Detect cargo/Rust toolchain
+[[capabilities]]
+kind = "process:exec"
+command = "cargo"
+args = ["--version"]
+
+# Detect which command (Unix)
+[[capabilities]]
+kind = "process:exec"
+command = "which"
+args = ["cargo"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "which"
+args = ["dbml-language-server"]
+
+# Detect where command (Windows)
+[[capabilities]]
+kind = "process:exec"
+command = "where"
+args = ["cargo"]
+
+[[capabilities]]
+kind = "process:exec"
+command = "where"
+args = ["dbml-language-server"]
+
+# Install dbml-language-server via cargo
+[[capabilities]]
+kind = "process:exec"
+command = "cargo"
+args = ["install", "dbml-language-server", "--version", "0.1.0", "--force"]
+
+# Run the language server binary
+[[capabilities]]
+kind = "process:exec"
+command = "dbml-language-server"
+args = []
+

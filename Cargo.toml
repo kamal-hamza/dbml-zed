@@ -3,21 +3,15 @@ name = "zed-dbml"
 version = "0.1.0"
 edition = "2021"
 
-[profile.release]
-panic = "abort"
-opt-level = "s"
-lto = true
-
 [lib]
 crate-type = ["cdylib"]
+path = "src/dbml.rs"
 
 [dependencies]
-zed_extension_api = "0.6.0"
+zed_extension_api = "0.7.0"
 
-[package.metadata.zed]
-id = "dbml"
-name = "DBML"
-version = "0.1.0"
-authors = ["Hamza Kamal<kamal.hamza@outlook.com>"]
-description = "DBML language support for Zed"
-repository = "https://github.com/kamal-hamza/dbml-zed"
+[profile.release]
+panic = "abort"
+opt-level = "z"
+lto = true
+strip = true

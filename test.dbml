@@ -1,30 +1,105 @@
-// Test DBML file
+enum user_role {
+    admin
+    moderator
+    user
+    guest
+}
+
+
+enum post_status {
+    draft
+    published
+    archived
+    deleted
+}
+
 
 Table users {
-  id int [pk, increment]
-  username varchar(50) [unique, not null]
-  email varchar(100) [not null]
-  created_at timestamp [default: `now()`]
+    id integer [pk, increment]
+    username varchar(255) [not null, unique]
+    email varchar(255) [not null, unique]
+    password_hash varchar(255) [not null]
+    role user_role [not null, default: 'user']
+    created_at timestamp [default: 'now()']
+    updated_at timestamp [default: 'now()']
+    last_login timestamp [null]
+    Note: 'User accounts'
+
+    indexes {
+        (email) [unique]
+        (username, email)
+    }
 }
+
 
 Table posts {
-  id int [pk, increment]
-  user_id int [ref: > users.id]
-  title varchar(200) [not null]
-  content text
-  published boolean [default: false]
-  created_at timestamp [default: `now()`]
+    id integer [pk, increment]
+    user_id integer [ref: > users.id, not null]
+    title varchar(200) [not null]
+    content text [null]
+    status post_status [not null, default: 'draft']
+    published_at timestamp [null]
+    created_at timestamp [default: 'now()']
+    updated_at timestamp [default: 'now()']
+    Note: 'Blog posts'
+
+    indexes {
+        (user_id)
+        (status)
+        (user_id, status)
+    }
 }
+
 
 Table comments {
-  id int [pk, increment]
-  post_id int [ref: > posts.id]
-  user_id int [ref: > users.id]
-  comment_text text [not null]
-  created_at timestamp [default: `now()`]
+    id integer [pk, increment]
+    post_id integer [ref: > posts.id, not null]
+    user_id integer [ref: > users.id, not null]
+    comment_text text [not null]
+    created_at timestamp [default: 'now()']
+    updated_at timestamp [default: 'now()']
+    Note: 'Comments on posts'
 }
 
-// Relationships
-Ref: posts.user_id > users.id
-Ref: comments.post_id > posts.id
-Ref: comments.user_id > users.id
+
+Table tags {
+    id integer [pk, increment]
+    name varchar(50) [not null, unique]
+    created_at timestamp [default: 'now()']
+
+    indexes {
+        (name) [unique]
+    }
+}
+
+
+Table post_tags {
+    post_id integer [ref: > posts.id]
+    tag_id integer [ref: > tags.id]
+    created_at timestamp [default: 'now()']
+
+    indexes {
+        (post_id, tag_id) [pk]
+    }
+}
+
+
+Ref: posts.user_id > users.id [delete: cascade, update: restrict]
+
+
+Ref: comments.post_id > posts.id [delete: cascade]
+
+
+Ref: comments.user_id > users.id [update: no action]
+
+
+Ref: post_tags.post_id > posts.id [delete: set null]
+
+
+Ref: post_tags.tag_id > tags.id [delete: set default, update: cascade]
+
+
+Project blog_database {
+    database_type: 'PostgreSQL'
+    Note: 'Test schema covering all official DBML syntax'
+}

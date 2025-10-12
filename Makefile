@@ -12,7 +12,9 @@ build:
 
 	@echo "🧩 Converting Wasm module to component..."
 	@mkdir -p extension/languages/dbml
-	# RUST_LOG=trace wasm-tools component new target/wasm32-wasip1/release/zed_dbml.wasm -o extension/extension.wasm
+	RUST_LOG=trace wasm-tools component new target/wasm32-wasip1/release/zed_dbml.wasm \
+		--adapt wasi_snapshot_preview1=./wasi_snapshot_preview1.reactor.wasm \
+		-o extension/extension.wasm
 	@cp extension.toml extension/
 	@cp -r languages/dbml/* extension/languages/dbml/
 	@echo "✅ Build complete!"
