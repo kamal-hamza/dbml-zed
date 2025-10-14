@@ -17,7 +17,7 @@ impl DbmlExtension {
     fn get_binary_name(&self) -> &'static str {
         #[cfg(target_os = "windows")]
         return "dbml-language-server.exe";
-        
+
         #[cfg(not(target_os = "windows"))]
         return "dbml-language-server";
     }
@@ -27,9 +27,12 @@ impl DbmlExtension {
         let result = zed::Command::new("cargo")
             .args(vec!["--version".to_string()])
             .output();
-        
+
         if let Ok(output) = result {
-            eprintln!("[DBML Extension] cargo --version: {}", String::from_utf8_lossy(&output.stdout));
+            eprintln!(
+                "[DBML Extension] cargo --version: {}",
+                String::from_utf8_lossy(&output.stdout)
+            );
             output.status == Some(0)
         } else {
             eprintln!("[DBML Extension] cargo not found");
@@ -40,7 +43,7 @@ impl DbmlExtension {
     /// Install the language server using cargo install
     fn install_language_server(&self, language_server_id: &LanguageServerId) -> Result<String> {
         eprintln!("[DBML Extension] Installing dbml-language-server from crates.io...");
-        
+
         zed::set_language_server_installation_status(
             language_server_id,
             &zed::LanguageServerInstallationStatus::Downloading,
@@ -59,20 +62,26 @@ impl DbmlExtension {
 
         match install_result {
             Ok(output) => {
-                eprintln!("[DBML Extension] cargo install output: {}", String::from_utf8_lossy(&output.stdout));
-                eprintln!("[DBML Extension] cargo install stderr: {}", String::from_utf8_lossy(&output.stderr));
-                
+                eprintln!(
+                    "[DBML Extension] cargo install output: {}",
+                    String::from_utf8_lossy(&output.stdout)
+                );
+                eprintln!(
+                    "[DBML Extension] cargo install stderr: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+
                 if output.status != Some(0) {
                     let error_msg = format!(
                         "Failed to install dbml-language-server. Error: {}",
                         String::from_utf8_lossy(&output.stderr)
                     );
-                    
+
                     zed::set_language_server_installation_status(
                         language_server_id,
                         &zed::LanguageServerInstallationStatus::Failed(error_msg.clone()),
                     );
-                    
+
                     return Err(error_msg.into());
                 }
             }
@@ -88,7 +97,7 @@ impl DbmlExtension {
 
         // Use 'which' to find the installed binary
         eprintln!("[DBML Extension] Locating installed binary with 'which'...");
-        
+
         #[cfg(target_os = "windows")]
         let which_cmd = "where";
         #[cfg(not(target_os = "windows"))]
@@ -106,20 +115,23 @@ impl DbmlExtension {
                     .next()
                     .unwrap_or("")
                     .to_string();
-                
+
                 if path.is_empty() {
                     return Err("Failed to locate installed language server binary".into());
                 }
-                
+
                 path
             }
             _ => {
                 return Err("Failed to locate installed language server binary".into());
             }
         };
-        
-        eprintln!("[DBML Extension] Language server installed at: {}", binary_path);
-        
+
+        eprintln!(
+            "[DBML Extension] Language server installed at: {}",
+            binary_path
+        );
+
         zed::set_language_server_installation_status(
             language_server_id,
             &zed::LanguageServerInstallationStatus::None,
@@ -131,7 +143,7 @@ impl DbmlExtension {
     /// Try to find an existing installation of the language server
     fn find_existing_binary(&self) -> Option<String> {
         eprintln!("[DBML Extension] Searching for existing binary...");
-        
+
         // Use 'which' to find the binary in PATH
         #[cfg(target_os = "windows")]
         let which_cmd = "where";
@@ -150,7 +162,7 @@ impl DbmlExtension {
                     .next()
                     .unwrap_or("")
                     .to_string();
-                
+
                 if !path.is_empty() {
                     eprintln!("[DBML Extension] Found binary in PATH: {}", path);
                     return Some(path);
@@ -183,33 +195,37 @@ impl DbmlExtension {
 
         // Try to find existing binary
         if let Some(existing_path) = self.find_existing_binary() {
-            eprintln!("[DBML Extension] ✓ Using existing binary: {}", existing_path);
+            eprintln!(
+                "[DBML Extension] ✓ Using existing binary: {}",
+                existing_path
+            );
             self.cached_binary_path = Some(existing_path.clone());
-            
+
             zed::set_language_server_installation_status(
                 language_server_id,
                 &zed::LanguageServerInstallationStatus::None,
             );
-            
+
             return Ok(existing_path);
         }
 
         // Check if cargo is available
         if !self.check_cargo_available() {
-            let error_msg = "Rust toolchain (cargo) not found. Please install Rust from https://rustup.rs/\n\n\
+            let error_msg =
+                "Rust toolchain (cargo) not found. Please install Rust from https://rustup.rs/\n\n\
                            The extension will provide syntax highlighting only.";
-            
+
             zed::set_language_server_installation_status(
                 language_server_id,
                 &zed::LanguageServerInstallationStatus::Failed(error_msg.to_string()),
             );
-            
+
             return Err(error_msg.into());
         }
 
         // Install the language server
         let binary_path = self.install_language_server(language_server_id)?;
-        
+
         // Cache the path
         self.cached_binary_path = Some(binary_path.clone());
 
@@ -217,7 +233,6 @@ impl DbmlExtension {
         Ok(binary_path)
     }
 }
-
 
 impl zed::Extension for DbmlExtension {
     fn new() -> Self {

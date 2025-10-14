@@ -93,6 +93,9 @@ Ref: comments.post_id > posts.id [delete: cascade]
 Ref: comments.user_id > users.id [update: no action]
 
 
+Ref: comments.id > users.created_at [update: cascade]
+
+
 Ref: post_tags.post_id > posts.id [delete: set null]
 
 
