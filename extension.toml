@@ -7,6 +7,11 @@ authors = ["Hamza Kamal<kamal.hamza@outlook.com>"]
 repository = "https://github.com/kamal-hamzal/dbml-zed"
 entry = "extension.wasm"
 
+
+[my-extension]
+submodule = "extensions/dbml-lsp"
+version = "0.1.0"
+
 [language_servers.dbml-language-server]
 name = "DBML Language Server"
 language = "DBML"
