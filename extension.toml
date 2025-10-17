@@ -1,5 +1,5 @@
 id = "dbml"
-name = "DBML"
+name = "DBML-LSP"
 description = "DBML (Database Markup Language) support with syntax highlighting, LSP features, and intelligent code completion"
 version = "0.1.0"
 schema_version = 1
@@ -57,4 +57,3 @@ args = ["install", "dbml-language-server", "--version", "0.1.0", "--force"]
 kind = "process:exec"
 command = "dbml-language-server"
 args = []
-

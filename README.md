@@ -4,12 +4,12 @@ A comprehensive [Zed](https://zed.dev) extension for [DBML (Database Markup Lang
 
 ## Features
 
-✨ **Syntax Highlighting** - Full syntax highlighting for DBML files via Tree-sitter grammar
-🔍 **Go to Definition** - Jump to table and enum definitions
-🔄 **Rename Symbol** - Rename tables, columns, and enums throughout your project
-🎨 **Semantic Tokens** - Advanced semantic highlighting for better code readability
-🚨 **Diagnostics** - Real-time error detection and reporting
-📝 **IntelliSense** - Code completion and intelligent suggestions
+**Syntax Highlighting** - Full syntax highlighting for DBML files via Tree-sitter grammar (Highlights from [Helix DBML](https://github.com/helix-editor/helix/blob/c9b484097b045a34b709131fc62e87ba21789d1a/runtime/queries/dbml/highlights.scm)).
+**Go to Definition** - Jump to table and enum definitions.
+**Rename Symbol** - Rename tables, columns, and enums throughout your project.
+**Semantic Tokens** - Advanced semantic highlighting for better code readability.
+**Diagnostics** - Real-time error detection and reporting.
+**IntelliSense** - Code completion and intelligent suggestions.
 
 ## Requirements
 
@@ -82,6 +82,7 @@ On the first time you open a `.dbml` file:
 3. This process may take a few minutes on the first run
 
 You can monitor the installation progress in Zed's LSP panel:
+
 - Open the command palette
 - Type "lsp: status" and select it
 
@@ -128,22 +129,26 @@ Ref: posts.user_id > users.id [delete: cascade]
 ### Language Server Features
 
 #### Go to Definition
+
 - Place cursor on a table name or enum name
 - Press `F12` or right-click and select "Go to Definition"
 - Jump directly to the definition
 
 #### Rename Symbol
+
 - Place cursor on a table name, column name, or enum name
 - Press `F2` or right-click and select "Rename Symbol"
 - Type the new name and press Enter
 - All references will be updated
 
 #### Diagnostics
+
 - Syntax errors are highlighted in real-time
 - Hover over errors to see detailed messages
 - Check the Problems panel for a list of all issues
 
 #### Semantic Highlighting
+
 - Keywords: `Table`, `Enum`, `Ref`, etc.
 - Table names highlighted differently from columns
 - Enum names and members have distinct colors
@@ -163,13 +168,14 @@ This extension uses the [`dbml-language-server`](https://crates.io/crates/dbml-l
 The extension automatically manages the language server installation:
 
 1. **Check**: Looks for an existing `dbml-language-server` binary in:
-   - `~/.cargo/bin/` (default cargo install location)
-   - System PATH
+    - `~/.cargo/bin/` (default cargo install location)
+    - System PATH
 
 2. **Install**: If not found, runs:
-   ```bash
-   cargo install dbml-language-server --version 0.1.0
-   ```
+
+    ```bash
+    cargo install dbml-language-server --version 0.1.0
+    ```
 
 3. **Cache**: Remembers the installation location for faster startup
 
@@ -180,28 +186,30 @@ The extension automatically manages the language server installation:
 **Symptom**: No LSP features (go to definition, diagnostics, etc.)
 
 **Solution**:
+
 1. Check that Rust is installed: `cargo --version`
 2. Try manually installing the language server:
-   ```bash
-   cargo install dbml-language-server --version 0.1.0 --force
-   ```
+    ```bash
+    cargo install dbml-language-server --version 0.1.0 --force
+    ```
 3. Check Zed's LSP logs:
-   - Open command palette → "lsp: status"
-   - Look for any error messages
+    - Open command palette → "lsp: status"
+    - Look for any error messages
 
 ### Extension Not Loading
 
 **Symptom**: DBML files have no syntax highlighting
 
 **Solution**:
+
 1. Verify the extension is installed:
-   ```bash
-   ls ~/.config/zed/extensions/dbml
-   ```
+    ```bash
+    ls ~/.config/zed/extensions/dbml
+    ```
 2. Check for the following files:
-   - `extension.toml`
-   - `extension.wasm`
-   - `languages/dbml/config.toml`
+    - `extension.toml`
+    - `extension.wasm`
+    - `languages/dbml/config.toml`
 3. Restart Zed
 
 ### Build Errors
@@ -209,19 +217,20 @@ The extension automatically manages the language server installation:
 **Symptom**: `./build.sh` fails
 
 **Solution**:
+
 1. Ensure Rust is up to date:
-   ```bash
-   rustup update
-   ```
+    ```bash
+    rustup update
+    ```
 2. Install the wasm32-wasip1 target:
-   ```bash
-   rustup target add wasm32-wasip1
-   ```
+    ```bash
+    rustup target add wasm32-wasip1
+    ```
 3. Clean and rebuild:
-   ```bash
-   cargo clean
-   ./build.sh
-   ```
+    ```bash
+    cargo clean
+    ./build.sh
+    ```
 
 ## Development
 
